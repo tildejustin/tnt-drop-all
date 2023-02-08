@@ -4,11 +4,11 @@ plugins {
 	id 'maven-publish'
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name
-version = project.mod_version
+version = project.version
 group = project.maven_group
 
 repositories {
@@ -20,7 +20,7 @@ repositories {
 }
 
 loom {
-	setIntermediaryUrl('https://repo.legacyfabric.net/repository/legacyfabric/net/legacyfabric/intermediary/%1$s/intermediary-%1$s-v2.jar');
+	setIntermediaryUrl('https://repo.legacyfabric.net/repository/legacyfabric/net/legacyfabric/intermediary/%1$s/intermediary-%1$s-v2.jar')
 	
 	// Only needed for versions not available from vanilla launcher by default.
 	// customMinecraftManifest.set("https://meta.legacyfabric.net/v2/manifest/${minecraft_version}")
@@ -33,65 +33,15 @@ loom {
 	// }
 }
 
-def lwjgl2 = !project.minecraft_version.startsWith("1.13")
-def currentOs = System.getProperty("os.name").toLowerCase(Locale.ENGLISH)
-
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.legacyfabric:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-	// Fabric API provides hooks for events, item registration, and more. As most mods will need this, it's included by default. 
-	// If you know for a fact you don't, it's not required and can be safely removed.
-	modImplementation ("net.legacyfabric.legacy-fabric-api:legacy-fabric-api:${project.fabric_version}") {
- 		exclude module: "legacy-fabric-entity-events-v1"
- 	}
-
-	// You can retrieve a specific api module using this notation.
-	//	modImplementation(legacyFabricApi.module("legacy-fabric-item-groups-v1", project.fabric_version))
-
-	if (lwjgl2) {
-		if (currentOs.contains("mac")) {
-			implementation 'org.lwjgl.lwjgl:lwjgl_util:2.9.4-nightly-20150209'
-			implementation 'org.lwjgl.lwjgl:lwjgl:2.9.4-nightly-20150209'
-			implementation 'org.lwjgl.lwjgl:lwjgl-platform:2.9.4-nightly-20150209'
-		} else if (currentOs.contains("linux")) {
-			implementation 'org.lwjgl.lwjgl:lwjgl_util:2.9.4-babric.1'
-			implementation 'org.lwjgl.lwjgl:lwjgl:2.9.4-babric.1'
-			implementation 'org.lwjgl.lwjgl:lwjgl-platform:2.9.4-babric.1'
-		}
-	}
-}
-
-if (lwjgl2) {
-	if (currentOs.contains("mac")) {
-		configurations.all {
-			resolutionStrategy {
-				dependencySubstitution {
-					substitute module('org.lwjgl.lwjgl:lwjgl_util:2.9.2-nightly-201408222') with module('org.lwjgl.lwjgl:lwjgl_util:2.9.4-nightly-20150209')
-					substitute module('org.lwjgl.lwjgl:lwjgl:2.9.2-nightly-201408222') with module('org.lwjgl.lwjgl:lwjgl:2.9.4-nightly-20150209')
-				}
-				force 'org.lwjgl.lwjgl:lwjgl-platform:2.9.4-nightly-20150209'
-			}
-		}
-	} else if (currentOs.contains("linux")) {
-		configurations.all {
-			resolutionStrategy {
-				dependencySubstitution {
-					substitute(module('org.lwjgl.lwjgl:lwjgl_util:2.9.4-nightly-20150209')) using module('org.lwjgl.lwjgl:lwjgl_util:2.9.4-babric.1')
-					substitute module('org.lwjgl.lwjgl:lwjgl:2.9.4-nightly-20150209') using module('org.lwjgl.lwjgl:lwjgl:2.9.4-babric.1')
-				}
-				force 'org.lwjgl.lwjgl:lwjgl-platform:2.9.4-babric.1'
-			}
-		}
-	}
 }
 
 processResources {
-	inputs.property "version", project.version
-
 	filesMatching("fabric.mod.json") {
-		expand "version": project.version
+		expand project.properties
 	}
 }
 
@@ -100,7 +50,7 @@ processResources {
 // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
 tasks.withType(JavaCompile).configureEach {
 	it.options.encoding = "UTF-8"
-	if (JavaVersion.current().isJava9Compatible()) it.options.release = 8
+	if (JavaVersion.current().isJava9Compatible()) it.options.release = 17
 }
 
 java {
@@ -113,20 +63,5 @@ java {
 jar {
 	from("LICENSE") {
 		rename { "${it}_${project.archivesBaseName}" }
-	}
-}
-
-// configure the maven publication
-publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			from components.java
-		}
-	}
-
-	// select the repositories you want to publish to
-	repositories {
-		// uncomment to publish to the local maven
-		// mavenLocal()
 	}
 }
