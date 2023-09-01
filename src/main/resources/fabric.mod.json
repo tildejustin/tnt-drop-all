@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "${archives_base_name}",
+  "id": "tntmod",
   "version": "${version}",
   "name": "TNT 100% Drop Rate",
   "description": "Makes tnt drop rate 100% for versions where it isn't (targeting 1.8.9)",
@@ -8,7 +8,6 @@
     "tildejustin"
   ],
   "license": "MIT",
-  "icon": "assets/modid/icon.png",
   "environment": "*",
   "mixins": [
     "tntmod.mixins.json"
